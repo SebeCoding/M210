@@ -1,0 +1,706 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AutoWorkshop</title>
+
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #121a33;
+      --text: #e9eeff;
+      --muted: #a9b3d6;
+      --accent: #7c5cff;
+      --accent2: #22c55e;
+      --danger: #ef4444;
+      --border: rgba(255, 255, 255, 0.10);
+      --shadow: 0 18px 60px rgba(0, 0, 0, .45);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background:
+        radial-gradient(900px 500px at 15% 10%, rgba(124, 92, 255, 0.35), transparent 60%),
+        radial-gradient(800px 500px at 85% 20%, rgba(34, 197, 94, 0.20), transparent 60%),
+        radial-gradient(900px 600px at 40% 95%, rgba(59, 130, 246, 0.18), transparent 60%),
+        var(--bg);
+      display: flex;
+      justify-content: center;
+      padding: 28px 16px 60px;
+    }
+
+    .app {
+      width: min(1100px, 100%);
+      display: grid;
+      gap: 18px;
+    }
+
+    header, main {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+    }
+
+    .hero {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      padding: 18px 18px 12px;
+    }
+
+    .logo {
+      width: 54px;
+      height: 54px;
+      border-radius: 16px;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.35), transparent 60%),
+        linear-gradient(135deg, rgba(124, 92, 255, 1), rgba(34, 197, 94, 0.9));
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: 0 12px 28px rgba(124, 92, 255, 0.28);
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+    }
+
+    .titles h1 {
+      margin: 0;
+      font-size: clamp(20px, 2.2vw, 28px);
+      line-height: 1.15;
+    }
+
+    .titles p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 0 18px 16px;
+    }
+
+    .btn {
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      gap: 10px;
+      align-items: center;
+      transition: transform .08s ease, background .15s ease, border-color .15s ease;
+      font-weight: 650;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.09);
+      border-color: rgba(255, 255, 255, 0.22);
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    .btn.primary {
+      background: linear-gradient(135deg, rgba(124, 92, 255, 0.95), rgba(124, 92, 255, 0.55));
+      border-color: rgba(124, 92, 255, 0.55);
+    }
+
+    .btn.danger {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.35);
+    }
+
+    .pill {
+      padding: 8px 10px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--muted);
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      user-select: none;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.35);
+    }
+
+    .dot.ok { background: var(--accent2); }
+    .dot.bad { background: var(--danger); }
+    .dot.neutral { background: rgba(255, 255, 255, 0.35); }
+
+    .search {
+      flex: 1 1 240px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(0, 0, 0, 0.18);
+    }
+
+    .search input {
+      width: 100%;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .search input::placeholder {
+      color: rgba(233, 238, 255, 0.45);
+    }
+
+    .panel {
+      padding: 14px 18px 18px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(0, 0, 0, 0.10);
+    }
+
+    .form {
+      display: grid;
+      grid-template-columns: 1.1fr 1.3fr 0.7fr auto;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .field label {
+      display: block;
+      font-size: 12px;
+      color: rgba(233, 238, 255, 0.65);
+      margin: 0 0 6px;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(0, 0, 0, 0.18);
+      color: var(--text);
+      outline: none;
+    }
+
+    .table-wrap { overflow: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 860px;
+    }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      background: rgba(18, 26, 51, 0.95);
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      padding: 14px;
+      font-size: 13px;
+      color: var(--muted);
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    tbody td {
+      padding: 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      vertical-align: middle;
+    }
+
+    tbody tr:hover { background: rgba(255, 255, 255, 0.04); }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(0, 0, 0, 0.20);
+      font-size: 13px;
+    }
+
+    .right { text-align: right; }
+    .empty { padding: 24px 18px; color: var(--muted); }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .mini {
+      padding: 8px 10px;
+      border-radius: 12px;
+      font-size: 13px;
+    }
+
+    .edit-input {
+      width: 100%;
+      padding: 9px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(0, 0, 0, 0.18);
+      color: var(--text);
+      outline: none;
+    }
+
+    footer {
+      color: rgba(233, 238, 255, 0.55);
+      font-size: 12px;
+      text-align: center;
+      padding: 4px 2px 0;
+    }
+
+    @media (max-width: 980px) {
+      .form { grid-template-columns: 1fr 1fr; }
+      .form .btn { grid-column: span 2; }
+      table { min-width: 760px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <header>
+      <div class="hero">
+        <div class="logo">AW</div>
+        <div class="titles">
+          <h1>AutoWorkshop</h1>
+          <p>REST API → Lambda → DynamoDB · Autos laden, hinzufügen, bearbeiten, löschen.</p>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <button class="btn primary" id="load">🔧 Autos laden</button>
+
+        <div class="search" title="Suche nach ID, Name oder Jahrgang">
+          🔎 <input id="q" type="search" placeholder="Suche… (z.B. BMW, 2018, id-123)" />
+        </div>
+
+        <button class="btn" id="clear">🧽 Filter löschen</button>
+
+        <div class="pill" id="statusPill">
+          <span class="dot neutral" id="statusDot"></span>
+          <span id="statusText">Bereit</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="form">
+          <div class="field">
+            <label for="newId">ID</label>
+            <input id="newId" placeholder="z.B. car-001" />
+          </div>
+
+          <div class="field">
+            <label for="newName">Name</label>
+            <input id="newName" placeholder="z.B. BMW M3" />
+          </div>
+
+          <div class="field">
+            <label for="newYear">Jahrgang</label>
+            <input id="newYear" type="number" placeholder="z.B. 2018" />
+          </div>
+
+          <button class="btn primary" id="add">➕ Auto hinzufügen</button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th data-key="id">ID</th>
+              <th data-key="name">Name</th>
+              <th data-key="jahrgang" class="right">Jahrgang</th>
+              <th class="right">Aktionen</th>
+            </tr>
+          </thead>
+
+          <tbody id="rows">
+            <tr>
+              <td colspan="4" class="empty">
+                Klicke auf <b>„Autos laden“</b>, um Daten zu holen.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+
+    <footer>AutoWorkshop · REST API → Lambda → DynamoDB</footer>
+  </div>
+
+  <script>
+    // =========================
+    // 🔧 API CONFIG (HIER ANPASSEN)
+    // =========================
+    // Option A (empfohlen): einheitliche REST-Routen:
+    //   GET    /cars
+    //   POST   /cars
+    //   PUT    /cars/{id}
+    //   DELETE /cars/{id}
+    //
+    // Dann setze BASE_URL auf dein Invoke URL + stage, z.B.:
+    // const BASE_URL = "https://xxxx.execute-api.us-east-1.amazonaws.com/prod";
+    //
+    // Option B: wenn du aktuell GET auf /getCars hast, setze GET_URL separat.
+
+    const BASE_URL = "https://0sok45thc4.execute-api.us-east-1.amazonaws.com"; // <- anpassen (evtl. /prod)
+    const GET_URL  = `${BASE_URL}/getCars`; // <- passt zu deinem bestehenden GET
+    const CARS_URL = `${BASE_URL}/cars`;    // <- für POST (und optional GET, wenn du umstellst)
+
+    // Für PUT/DELETE wird `${CARS_URL}/{id}` verwendet.
+
+    // =========================
+    // STATE
+    // =========================
+    let cars = [];
+    let sortKey = "jahrgang";
+    let sortDir = "desc"; // asc|desc
+    const editing = new Set(); // ids currently in edit mode
+
+    const el = {
+      load: document.getElementById("load"),
+      add: document.getElementById("add"),
+      clear: document.getElementById("clear"),
+      q: document.getElementById("q"),
+      rows: document.getElementById("rows"),
+      statusText: document.getElementById("statusText"),
+      statusDot: document.getElementById("statusDot"),
+      newId: document.getElementById("newId"),
+      newName: document.getElementById("newName"),
+      newYear: document.getElementById("newYear"),
+    };
+
+    function setStatus(kind, text) {
+      el.statusText.textContent = text;
+      el.statusDot.classList.remove("ok", "bad", "neutral");
+      el.statusDot.classList.add(
+        kind === "ok" ? "ok" : kind === "bad" ? "bad" : "neutral"
+      );
+    }
+
+    function normalize(v) {
+      return String(v ?? "").toLowerCase();
+    }
+
+    function escapeHtml(value) {
+      const s = String(value ?? "");
+      return s
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function compare(a, b, key) {
+      if (key === "jahrgang") return Number(a?.jahrgang) - Number(b?.jahrgang);
+      return normalize(a?.[key]).localeCompare(normalize(b?.[key]), "de-CH");
+    }
+
+    function applySort(list) {
+      const copy = [...list];
+      copy.sort((a, b) => {
+        const c = compare(a, b, sortKey);
+        return sortDir === "asc" ? c : -c;
+      });
+      return copy;
+    }
+
+    function applyFilter(list) {
+      const q = normalize(el.q.value).trim();
+      if (!q) return list;
+      return list.filter(
+        (c) =>
+          normalize(c.id).includes(q) ||
+          normalize(c.name).includes(q) ||
+          normalize(c.jahrgang).includes(q)
+      );
+    }
+
+    function render() {
+      const filtered = applyFilter(cars);
+      const sorted = applySort(filtered);
+
+      if (!cars.length) {
+        el.rows.innerHTML =
+          `<tr><td colspan="4" class="empty">Noch keine Daten geladen.</td></tr>`;
+        return;
+      }
+
+      if (!sorted.length) {
+        el.rows.innerHTML =
+          `<tr><td colspan="4" class="empty">Keine Treffer für deinen Filter.</td></tr>`;
+        return;
+      }
+
+      el.rows.innerHTML = sorted
+        .map((c) => {
+          const isEdit = editing.has(c.id);
+
+          const idCell = `<span class="tag">🆔 <span>${escapeHtml(c.id)}</span></span>`;
+
+          const nameCell = isEdit
+            ? `<input class="edit-input" data-edit="name" data-id="${escapeHtml(c.id)}" value="${escapeHtml(c.name)}" />`
+            : `<span class="tag">🚗 <span>${escapeHtml(c.name)}</span></span>`;
+
+          const yearCell = isEdit
+            ? `<input class="edit-input right" style="text-align:right" type="number" data-edit="jahrgang" data-id="${escapeHtml(c.id)}" value="${escapeHtml(c.jahrgang)}" />`
+            : `<span class="tag">📅 <span>${escapeHtml(c.jahrgang)}</span></span>`;
+
+          const actions = isEdit
+            ? `
+              <div class="actions">
+                <button class="btn mini primary" data-action="save" data-id="${escapeHtml(c.id)}">💾 Speichern</button>
+                <button class="btn mini" data-action="cancel" data-id="${escapeHtml(c.id)}">↩️ Abbrechen</button>
+              </div>
+            `
+            : `
+              <div class="actions">
+                <button class="btn mini" data-action="edit" data-id="${escapeHtml(c.id)}">✏️ Bearbeiten</button>
+                <button class="btn mini danger" data-action="delete" data-id="${escapeHtml(c.id)}">🗑️ Löschen</button>
+              </div>
+            `;
+
+          return `
+            <tr>
+              <td>${idCell}</td>
+              <td>${nameCell}</td>
+              <td class="right">${yearCell}</td>
+              <td class="right">${actions}</td>
+            </tr>
+          `;
+        })
+        .join("");
+
+      setStatus("ok", `${sorted.length} Auto(s) angezeigt`);
+    }
+
+    async function apiFetch(url, options = {}) {
+      const r = await fetch(url, {
+        ...options,
+        headers: {
+          "Content-Type": "application/json",
+          ...(options.headers ?? {}),
+        },
+      });
+
+      const text = await r.text();
+      let data = null;
+
+      try {
+        data = text ? JSON.parse(text) : null;
+      } catch {
+        data = text;
+      }
+
+      if (!r.ok) {
+        const msg = data && data.error ? data.error : `HTTP ${r.status}`;
+        throw new Error(msg);
+      }
+
+      return data;
+    }
+
+    async function loadCars() {
+      setStatus("neutral", "Lade Daten…");
+      el.load.disabled = true;
+
+      try {
+        const data = await apiFetch(GET_URL, { method: "GET" });
+
+        // akzeptiert: Array oder {items:[...]}
+        const list = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.items)
+            ? data.items
+            : [];
+
+        cars = list.map((x) => ({
+          id: String(x.id),
+          name: String(x.name),
+          jahrgang: Number(x.jahrgang),
+        }));
+
+        editing.clear();
+        render();
+
+        if (!cars.length) setStatus("bad", "Keine Autos erhalten (leere Liste).");
+        else setStatus("ok", `${cars.length} Auto(s) geladen`);
+      } catch (e) {
+        setStatus("bad", "Fehler beim Laden");
+        el.rows.innerHTML =
+          `<tr><td colspan="4" class="empty">❌ ${escapeHtml(String(e))}</td></tr>`;
+      } finally {
+        el.load.disabled = false;
+      }
+    }
+
+    async function addCar() {
+      const id = el.newId.value.trim();
+      const name = el.newName.value.trim();
+      const jahrgang = el.newYear.value.trim();
+
+      if (!id || !name || !jahrgang) {
+        setStatus("bad", "Bitte ID, Name und Jahrgang ausfüllen.");
+        return;
+      }
+
+      setStatus("neutral", "Erstelle Auto…");
+      el.add.disabled = true;
+
+      try {
+        await apiFetch(CARS_URL, {
+          method: "POST",
+          body: JSON.stringify({ id, name, jahrgang: Number(jahrgang) }),
+        });
+
+        el.newId.value = "";
+        el.newName.value = "";
+        el.newYear.value = "";
+
+        await loadCars();
+        setStatus("ok", "Auto hinzugefügt ✅");
+      } catch (e) {
+        setStatus("bad", `Fehler: ${String(e)}`);
+      } finally {
+        el.add.disabled = false;
+      }
+    }
+
+    function startEdit(id) {
+      editing.add(id);
+      render();
+      setStatus("neutral", "Bearbeiten…");
+    }
+
+    function cancelEdit(id) {
+      editing.delete(id);
+      render();
+      setStatus("ok", "Bearbeiten abgebrochen");
+    }
+
+    function getEditValues(id) {
+      const nameInput = document.querySelector(
+        `input[data-edit="name"][data-id="${CSS.escape(id)}"]`
+      );
+      const yearInput = document.querySelector(
+        `input[data-edit="jahrgang"][data-id="${CSS.escape(id)}"]`
+      );
+
+      return {
+        name: nameInput ? nameInput.value.trim() : "",
+        jahrgang: yearInput ? Number(yearInput.value) : NaN,
+      };
+    }
+
+    async function saveEdit(id) {
+      const { name, jahrgang } = getEditValues(id);
+
+      if (!name || Number.isNaN(jahrgang)) {
+        setStatus("bad", "Name und Jahrgang müssen gültig sein.");
+        return;
+      }
+
+      setStatus("neutral", "Speichere Änderungen…");
+
+      try {
+        await apiFetch(`${CARS_URL}/${encodeURIComponent(id)}`, {
+          method: "PUT",
+          body: JSON.stringify({ name, jahrgang }),
+        });
+
+        editing.delete(id);
+        await loadCars();
+        setStatus("ok", "Gespeichert ✅");
+      } catch (e) {
+        setStatus("bad", `Fehler: ${String(e)}`);
+      }
+    }
+
+    async function deleteCar(id) {
+      if (!confirm(`Auto "${id}" wirklich löschen?`)) return;
+
+      setStatus("neutral", "Lösche Auto…");
+
+      try {
+        await apiFetch(`${CARS_URL}/${encodeURIComponent(id)}`, { method: "DELETE" });
+        await loadCars();
+        setStatus("ok", "Gelöscht ✅");
+      } catch (e) {
+        setStatus("bad", `Fehler: ${String(e)}`);
+      }
+    }
+
+    // UI events
+    el.load.addEventListener("click", loadCars);
+    el.add.addEventListener("click", addCar);
+
+    el.clear.addEventListener("click", () => {
+      el.q.value = "";
+      render();
+      setStatus(cars.length ? "ok" : "neutral", cars.length ? "Filter gelöscht" : "Bereit");
+    });
+
+    el.q.addEventListener("input", () => {
+      render();
+      if (!cars.length) setStatus("neutral", "Bereit");
+    });
+
+    // Sort by header click
+    document.querySelectorAll("thead th[data-key]").forEach((th) => {
+      th.addEventListener("click", () => {
+        const key = th.getAttribute("data-key");
+        if (sortKey === key) sortDir = sortDir === "asc" ? "desc" : "asc";
+        else {
+          sortKey = key;
+          sortDir = key === "jahrgang" ? "desc" : "asc";
+        }
+        render();
+      });
+    });
+
+    // Row actions (event delegation)
+    el.rows.addEventListener("click", (ev) => {
+      const btn = ev.target.closest("button[data-action]");
+      if (!btn) return;
+
+      const action = btn.getAttribute("data-action");
+      const id = btn.getAttribute("data-id");
+
+      if (action === "edit") startEdit(id);
+      if (action === "cancel") cancelEdit(id);
+      if (action === "save") saveEdit(id);
+      if (action === "delete") deleteCar(id);
+    });
+
+    // Initial
+    render();
+  </script>
+</body>
+</html>
