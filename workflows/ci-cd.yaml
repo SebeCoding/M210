@@ -1,0 +1,35 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+
+      - name: Node.js einrichten
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Abhängigkeiten installieren
+        run: npm ci
+
+      - name: Tests ausführen
+        run: npm test
+
+      - name: Build ausführen
+        run: npm run build
+
+      - name: Deployment
+        if: github.ref == 'refs/heads/main'
+        run: echo "Hier würde das Deployment laufen"
