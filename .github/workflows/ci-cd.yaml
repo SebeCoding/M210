@@ -1,36 +1,31 @@
-name: Deploy Auto-Verwaltung
+name: Deploy static website to S3
+
 on:
-push:
-branches:
-- main
+  push:
+    branches:
+      - main
+
 jobs:
-deploy:
-runs-on: ubuntu-latest
-steps:
-- uses: actions/checkout@v3
-- uses: aws-actions/configure-aws-credentials@v2
-with:
-aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-aws-region: us-east-1
-- uses: hashicorp/setup-terraform@v2
-- name: Terraform apply (Infrastruktur)
-run: |
-cd terraform
-terraform init
-terraform apply -auto-approve
-- name: Deploy Lambda (Backend)
-run: |
-cd backend
-npm ci --omit=dev
-zip -r function.zip .
-aws lambda update-function-code \
---function-name AutoAPI \
---zip-file fileb://function.zip
-- name: Build & Upload Frontend (React)
-run: |
-cd frontend
-npm ci
-npm run build
-aws s3 sync build/ s3://auto-verwaltung-frontend-2024-unique-id --delete
+  build-test-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+
+      - name: Prüfen, ob index.html existiert
+        run: test -f index.html
+
+      - name: HTML auf Grundstruktur prüfen
+        run: grep -qi "<html" index.html
+
+      - name: AWS Credentials konfigurieren
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: us-east-1
+
+      - name: Dateien nach S3 deployen
+        run: aws s3 sync . s3://cicd-frontend-894156953971 --delete --exclude ".git/*" --exclude ".github/*" --exclude "terraform*" --exclude "*.zip"
